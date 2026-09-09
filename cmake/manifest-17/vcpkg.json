@@ -1,0 +1,13 @@
+﻿{
+  "name": "localmapitemmarkers-17",
+  "version-string": "1.0.3",
+  "description": "Local Map Item Markers - every level permanently adds carry weight, amount and cap configurable live in game. [Skyrim 1.7.x build line: CommonLibSSE-NG 7.2.0, cmake/ports-17]",
+  "homepage": "https://github.com/ApocryphaRealm/LocalMapItemMarkers",
+  "license": "MIT",
+  "dependencies": [
+    "commonlibsse-ng",
+    "spdlog"
+  ],
+  "builtin-baseline": "127402f1c75bb3d5ff6bce04b285faa4930a5aca"
+}
+

@@ -1,0 +1,12 @@
+{
+    "name": "localmapitemmarkers",
+    "version-string": "1.0.0",
+    "description": "Marks nearby weapons, armour, containers and quest items on Skyrim's local map, as an optional add-on to Local Map Upgrade.",
+    "homepage": "https://github.com/ApocryphaRealm/LocalMapItemMarkers",
+    "license": "MIT",
+    "dependencies": [
+        "commonlibsse-ng",
+        "spdlog"
+    ],
+    "builtin-baseline": "8d3649ba34aab36914ddd897958599aa0a91b08e"
+}

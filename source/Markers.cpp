@@ -141,22 +141,12 @@ namespace itemmarkers
 					return RE::BSContainer::ForEachResult::kContinue;
 				}
 
-				// DIAGNOSTIC (2026-09-09): the markers are counted but nothing draws. The first
-				// suspect is the handle - CreateRefHandle on a non-persistent world reference can
-				// come back invalid, and a marker whose ref handle is 0 is one the game has every
-				// reason to skip. Log the first few so the answer is measured, not guessed.
-				const auto handle = a_ref->CreateRefHandle();
-				const std::uint32_t raw = handle.native_handle();
-
-				if (contributed < 3)
-				{
-					logger::debug("  marker {}: handle={:#x} valid={} form={:#x} name=\"{}\" icon={}",
-								  contributed, raw, handle.get() != nullptr,
-								  a_ref->GetFormID(), a_ref->GetDisplayFullName(),
-								  static_cast<std::uint32_t>(icon));
-				}
-
-				a_add(a_frame, raw, a_ref->GetDisplayFullName(), static_cast<std::uint32_t>(icon));
+				// The handles were the first suspect when nothing drew (2026-09-09) and were
+				// measured innocent - valid, real forms, correct icon indices. Nothing is logged
+				// per marker here on purpose: this runs on every frame the map is drawn, and the
+				// standing rule is that per-frame code logs transitions only.
+				a_add(a_frame, a_ref->CreateRefHandle().native_handle(), a_ref->GetDisplayFullName(),
+					  static_cast<std::uint32_t>(icon));
 				++contributed;
 
 				return RE::BSContainer::ForEachResult::kContinue;

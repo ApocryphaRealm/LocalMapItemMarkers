@@ -9,6 +9,8 @@
 
 #include <atomic>
 #include <chrono>
+#include <format>
+#include <limits>
 
 namespace itemmarkers
 {
@@ -230,6 +232,104 @@ namespace itemmarkers
 	bool IsRegistered()
 	{
 		return g_registered.load();
+	}
+
+	std::string TestClearDeleted(std::uint32_t a_formID)
+	{
+		auto* ref = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_formID);
+
+		if (!ref)
+		{
+			return std::format(R"({{"ok":false,"op":"undelete","error":"no reference {:08X}"}})", a_formID);
+		}
+
+		const std::uint32_t before = ref->GetFormFlags();
+		ref->formFlags &= ~static_cast<std::uint32_t>(RE::TESForm::RecordFlags::kDeleted);
+
+		return std::format(R"({{"ok":true,"op":"undelete","ref":"{:08X}","flagsBefore":"{:08X}","flagsAfter":"{:08X}"}})",
+						   a_formID, before, static_cast<std::uint32_t>(ref->GetFormFlags()));
+	}
+
+	std::string ProbeQuestItems()
+	{
+		RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+		RE::TES* tes = RE::TES::GetSingleton();
+
+		if (!player || !tes)
+		{
+			return R"({"ok":false,"error":"no player or TES yet"})";
+		}
+
+		const float radius = settings::markers::radiusFeet == 0 ?
+								 std::numeric_limits<float>::max() :
+								 static_cast<float>(settings::markers::radiusFeet) * kFeetToUnits;
+
+		std::string rows;
+		std::uint32_t found = 0, withAliasData = 0, scanned = 0;
+
+		tes->ForEachReferenceInRange(player, radius, [&](RE::TESObjectREFR* a_ref) {
+			++scanned;
+
+			if (!a_ref || a_ref->GetFormType() == RE::FormType::ActorCharacter)
+			{
+				return RE::BSContainer::ForEachResult::kContinue;
+			}
+
+			auto* aliasArray = a_ref->extraList.GetByType<RE::ExtraAliasInstanceArray>();
+			const bool hasQuestObjectAlias = a_ref->extraList.HasQuestObjectAlias();
+
+			// Runtime-created references (FF......) are listed too, with their raw flags, so the alias-made ones
+			// can be compared with an ordinary PlaceAtMe'd one.
+			const bool created = (a_ref->GetFormID() >> 24) == 0xFF;
+
+			if (!aliasArray && !hasQuestObjectAlias && !created)
+			{
+				return RE::BSContainer::ForEachResult::kContinue;
+			}
+
+			++withAliasData;
+
+			if (found >= 40)
+			{
+				return RE::BSContainer::ForEachResult::kContinue;
+			}
+
+			++found;
+
+			std::string aliases;
+			if (aliasArray)
+			{
+				RE::BSReadLockGuard lock(aliasArray->lock);
+				for (auto* info : aliasArray->aliases)
+				{
+					if (!info || !info->alias)
+					{
+						continue;
+					}
+					if (!aliases.empty()) { aliases += ","; }
+					aliases += std::format(R"({{"quest":"{}","alias":"{}","isQuestObject":{}}})",
+										   info->quest ? info->quest->GetFormEditorID() : "?",
+										   info->alias->aliasName.c_str(), info->alias->IsQuestObject() ? "true" : "false");
+				}
+			}
+
+			const RE::TESBoundObject* base = a_ref->GetBaseObject();
+			if (!rows.empty()) { rows += ","; }
+			IconType icon{};
+			const bool classified = Classify(a_ref, icon);
+
+			rows += std::format(R"({{"ref":"{:08X}","base":"{}","formType":{},"hasQuestObjectAlias":{},"persistent":{},"disabled":{},"deleted":{},"markedForDeletion":{},"classified":{},"icon":{},"flags":"{:08X}","aliases":[{}]}})",
+								a_ref->GetFormID(), base ? base->GetName() : "?",
+								base ? static_cast<int>(base->GetFormType()) : -1, hasQuestObjectAlias ? "true" : "false",
+								(a_ref->GetFormFlags() & 0x400) ? "true" : "false", a_ref->IsDisabled() ? "true" : "false",
+								a_ref->IsDeleted() ? "true" : "false", a_ref->IsMarkedForDeletion() ? "true" : "false",
+								classified ? "true" : "false", classified ? static_cast<int>(icon) : -1,
+								static_cast<std::uint32_t>(a_ref->GetFormFlags()), aliases);
+
+			return RE::BSContainer::ForEachResult::kContinue;
+		});
+
+		return std::format(R"({{"ok":true,"op":"questprobe","scanned":{},"withAliasData":{},"rows":[{}]}})", scanned, withAliasData, rows);
 	}
 
 	Stats GetStats()

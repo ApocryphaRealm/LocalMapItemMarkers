@@ -8,6 +8,7 @@
 // Scaleform side; all this does is answer "what is near the player, and which icon should it use".
 
 #include <cstdint>
+#include <string>
 
 namespace itemmarkers
 {
@@ -48,4 +49,15 @@ namespace itemmarkers
 	};
 
 	Stats GetStats();
+
+	// Test aid for the DevBench tool (op=questprobe): every reference in range that carries quest-alias data,
+	// with what the engine says about it - so a quest item can be found and judged without guessing which
+	// cell holds one. Reads only; same radius setting as the marker build.
+	std::string ProbeQuestItems();
+
+	// Test fixture (op=undelete:<ref>): clears the engine's Deleted flag on one reference. A quest's
+	// reserved alias item carries that flag until the quest really fills it, and the marker build rightly
+	// skips deleted references; a test that has no way to run the quest to that point clears it by hand to
+	// see the same item as the engine would present it once filled. Never called by the plugin itself.
+	std::string TestClearDeleted(std::uint32_t a_formID);
 }

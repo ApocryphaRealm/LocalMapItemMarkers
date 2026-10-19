@@ -43,6 +43,17 @@ namespace DevBenchTool
 				a_write(a_sink, std::format(R"({{"ok":{},"op":"reload"}})", ok ? "true" : "false").c_str());
 				return;
 			}
+			if (const auto at = args.find("undelete:"); at != std::string_view::npos)
+			{
+				const std::string hex(args.substr(at + 9, 8));
+				a_write(a_sink, itemmarkers::TestClearDeleted(static_cast<std::uint32_t>(std::strtoul(hex.c_str(), nullptr, 16))).c_str());
+				return;
+			}
+			if (args.find("\"questprobe\"") != std::string_view::npos)
+			{
+				a_write(a_sink, itemmarkers::ProbeQuestItems().c_str());
+				return;
+			}
 			if (args.find("\"strings\"") != std::string_view::npos)
 			{
 				a_write(a_sink, std::format(R"({{"ok":true,"op":"strings","strings":{}}})", strings::StatusJson()).c_str());
@@ -114,7 +125,7 @@ namespace DevBenchTool
 			"Map Upgrade, the four category settings, and what the LAST marker build found - "
 			"contributed/scanned/cappedAway, the scan time in microseconds, and the per-category "
 			"counts. op=reload re-reads the INI; op=strings reports the active language; "
-			"op=weapons:0|1, armour:, containers:, questitems: flip a category live for testing.\","
+			"op=weapons:0|1, armour:, containers:, questitems: flip a category live for testing; op=questprobe lists the references in range that carry quest-alias data (and every runtime-created one); op=undelete:<ref> clears the Deleted flag on one reference, a test fixture for a quest's reserved alias item.\","
 			"\"inputSchema\":{\"type\":\"object\",\"properties\":{\"op\":{\"type\":\"string\"}}},"
 			"\"readOnly\":false"
 			"}";

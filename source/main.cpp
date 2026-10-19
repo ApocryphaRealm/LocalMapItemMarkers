@@ -1,4 +1,4 @@
-// Local Map Item Markers - own code, MIT (2026-09-09). An optional add-on to Local Map Upgrade:
+// Local Map Item Markers - own code, GPL-3.0-or-later (MIT up to 1.0.0). An optional add-on to Local Map Upgrade:
 // marks nearby weapons, armour, containers and quest items on the local map - and therefore on
 // Dragon's Eye Minimap too, since that renders the same map re-framed.
 //
@@ -16,6 +16,7 @@
 #include "Settings.h"
 #include "UI.h"
 
+#include "utils/AddressLibraryGuard.h"
 #include "utils/Logger.h"
 #include "utils/Strings.h"
 
@@ -73,6 +74,13 @@ namespace
 
 SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 {
+	// Address Library pre-check (the guard every mod of ours carries), BEFORE SKSE::Init, which opens the
+	// Address Library itself: a missing file gets a message naming it and the plugin loads inert.
+	if (!AddressLibraryGuard::Guard("Local Map Item Markers"))
+	{
+		return true;
+	}
+
 	SKSE::Init(a_skse);
 	SKSE::log::init("LocalMapItemMarkers");
 

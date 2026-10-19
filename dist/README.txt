@@ -25,5 +25,6 @@ Fixed no item markers appearing when another mod's marker art (Norden UI, for on
 Changed the add-on to overwrite one Local Map Upgrade file instead of two; it no longer ships a copy of the marker art, so a UI replacer's art stays as it is.
 Added a check for the Address Library file at start-up; if it is missing the plugin says so in its log and stays inactive instead of failing with a bare error.
 Changed the licence to GPL-3.0-or-later, matching Local Map Upgrade.
+Changed the log to the info level by default; set uLogLevel to 0 or 1 in the INI for more detail.
 Version 1.0.0
 First release. Marks nearby weapons, armour, containers and quest items on the local map, each category switchable on its own.

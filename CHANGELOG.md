@@ -17,6 +17,7 @@ Written as changes happen, not reconstructed afterwards (rule 61). Each version 
 - DevBench tool lmim.status gains op=questprobe (lists references carrying quest-alias data and every runtime-created one, with the engine's own answer and flags) and op=undelete:<ref> (test fixture: clears the Deleted flag on one reference). Proven in game 2026-10-18: a quest's reserved alias item (MQ103 Dragonstone) is classified as a quest item (icon 9) but carries the engine's Deleted flag until the quest really fills it, and the marker build skips deleted references on purpose; with the flag cleared the green quest-item marker drew at the item.
 - Address Library guard at start-up (gate row skse-plugin-carries-address-library-guard): a missing file is named in the log and the plugin loads inert.
 ### Changed
+- Ships at log level info (uLogLevel=2, compiled default and INI) instead of trace, as every mod of ours now does (pre-finalize-check).
 - Licence is GPL-3.0-or-later like every other mod of ours (LICENSE, NOTICE.md, THIRD_PARTY_NOTICES.md; the alexsylex MIT notice for the two Scaleform files is kept). 1.0.0 had been labelled MIT.
 ### Removed
 - The add-on no longer ships its own copy of IconDisplayExtensionArt.swf. The shared marker art is Local Map Upgrade's (or a UI replacer's, such as Norden UI); the extension now needs nothing from it beyond the NeutralMarker symbol every version has, so the add-on overwrites ONE of Local Map Upgrade's files instead of two and no longer fights a UI replacer over the art.

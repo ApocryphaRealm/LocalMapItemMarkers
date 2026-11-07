@@ -74,6 +74,15 @@ namespace
 
 SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 {
+	// 1.1.0 (round 2 of the Line-17 ports): the log opens FIRST, then the banner, then the Address Library guard, then
+	// SKSE::Init. The log used to open after the guard, so the guard's [AddressLibrary] line and any banner went
+	// nowhere and the file began at "settings loaded" - on both build lines (the 1.7.104 test, 2026-11-07).
+	SKSE::log::init("LocalMapItemMarkers");
+	logger::info("Local Map Item Markers {} loading on Skyrim {} ({} build)",
+				 SKSE::PluginDeclaration::GetSingleton()->GetVersion().string("."),
+				 REL::Module::get().version().string("."),
+				 RUNTIME_LINE == 17 ? "Skyrim 1.7.x" : "SE 1.5.97 / AE 1.6.x");
+
 	// Address Library pre-check (the guard every mod of ours carries), BEFORE SKSE::Init, which opens the
 	// Address Library itself: a missing file gets a message naming it and the plugin loads inert.
 	if (!AddressLibraryGuard::Guard("Local Map Item Markers"))
@@ -82,19 +91,15 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 	}
 
 #if RUNTIME_LINE == 17
-	// CommonLibSSE-NG 7.2's Init(a_skse, a_log = true) starts its own logger, which recreates this plugin's log
-	// and wipes what was written above. Ours is already running.
+	// CommonLibSSE-NG 7.2's Init(a_skse, a_log = true) starts its own logger, which would recreate this plugin's log
+	// and wipe what was written above. Ours is already running.
 	SKSE::Init(a_skse, false);
 #else
 	SKSE::Init(a_skse);
 #endif
-	SKSE::log::init("LocalMapItemMarkers");
 
 	settings::Init("LocalMapItemMarkers.ini");
 	settings::ApplyLogLevel();
-
-	logger::info("Local Map Item Markers {} loading",
-				 SKSE::PluginDeclaration::GetSingleton()->GetVersion().string("."));
 
 	SKSE::GetMessagingInterface()->RegisterListener(MessageHandler);
 

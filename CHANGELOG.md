@@ -17,6 +17,9 @@ Written as changes happen, not reconstructed afterwards (rule 61). Each version 
 - The Radius and Most-markers sliders move one unit per arrow-key or D-pad press (precise sliders, as in our other mods), and step on Left / Right while highlighted, instead of jumping 10 or 5.
 - Picking the wrong build for your game now says so plainly: 'this build does not support Skyrim <version>; your Address Library is fine', and names the installer option to choose, instead of reporting a missing Address Library file.
 
+### Fixed
+- The log now opens before anything else, so it starts with the version and game line and the Address Library check instead of 'settings loaded' (those first lines were never written, on either game).
+
 ## 1.0.1 - 2026-10-18 - untested
 
 ### Fixed

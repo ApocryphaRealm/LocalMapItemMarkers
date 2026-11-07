@@ -8,6 +8,15 @@ Written as changes happen, not reconstructed afterwards (rule 61). Each version 
 * **failed** - built but crashed or malfunctioned; the number was reclaimed
 * **scratch** - a hypothesis-test build that never held a real number
 
+## 1.1.0 - 2026-11-07 - untested
+
+### Added
+- A Skyrim 1.7.x build (1.7.99 / 1.7.104). The installer now asks which Skyrim you have: SE 1.5.97 / AE 1.6.1170, or Skyrim 1.7.x (needs SKSE 2.3.x and Address Library All-in-One v13 or newer). The 1.7 build is the same source compiled against CommonLibSSE-NG 7.2.0.
+
+### Changed
+- The Radius and Most-markers sliders move one unit per arrow-key or D-pad press (precise sliders, as in our other mods), and step on Left / Right while highlighted, instead of jumping 10 or 5.
+- Picking the wrong build for your game now says so plainly: 'this build does not support Skyrim <version>; your Address Library is fine', and names the installer option to choose, instead of reporting a missing Address Library file.
+
 ## 1.0.1 - 2026-10-18 - untested
 
 ### Fixed

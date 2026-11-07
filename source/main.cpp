@@ -81,7 +81,13 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 		return true;
 	}
 
+#if RUNTIME_LINE == 17
+	// CommonLibSSE-NG 7.2's Init(a_skse, a_log = true) starts its own logger, which recreates this plugin's log
+	// and wipes what was written above. Ours is already running.
+	SKSE::Init(a_skse, false);
+#else
 	SKSE::Init(a_skse);
+#endif
 	SKSE::log::init("LocalMapItemMarkers");
 
 	settings::Init("LocalMapItemMarkers.ini");

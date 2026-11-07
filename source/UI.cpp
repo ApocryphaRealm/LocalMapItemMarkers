@@ -3,6 +3,8 @@
 #include "UI.h"
 
 #include "SKSEMenuFramework.h"
+#include "PreciseSlider.h"
+#include "SliderNudge.h"
 
 #include "Markers.h"
 #include "Settings.h"
@@ -21,7 +23,6 @@ namespace UI
 	namespace
 	{
 		std::string statusMessage;
-		std::string selectedSlider;
 
 		constexpr const char* kLogLevelNames[] = { "Trace", "Debug", "Info", "Warning", "Error", "Critical", "Off" };
 		constexpr const char* kLogLevelKeys[] = { "LMIM_LogLevel_Trace", "LMIM_LogLevel_Debug", "LMIM_LogLevel_Info",
@@ -87,24 +88,15 @@ namespace UI
 			}
 		}
 
+		// rule 68 (applied at 1.1.0): precise::SliderFloat holds a keyboard / D-pad nudge to one unit of the digit the format
+		// shows, and precise::HighlightNudge steps a highlighted slider on Left / Right without activating it. They replace
+		// the earlier arrow-key nudge of a_step, which moved 10 or 5 units at a time; a_step is kept for the call sites.
 		bool NudgeableSlider(const char* a_label, float* a_value, float a_min, float a_max,
-							 const char* a_format, float a_step)
+							 const char* a_format, float /*a_step*/)
 		{
-			bool changed = ImGuiMCP::SliderFloat(a_label, a_value, a_min, a_max, a_format);
-			if (ImGuiMCP::IsItemClicked() || ImGuiMCP::IsItemActive()) { selectedSlider = a_label; }
-			if (selectedSlider == a_label)
-			{
-				float nudge = 0.0F;
-				if (ImGuiMCP::IsKeyPressed(ImGuiMCP::ImGuiKey_LeftArrow) || ImGuiMCP::IsKeyPressed(ImGuiMCP::ImGuiKey_DownArrow)) { nudge -= a_step; }
-				if (ImGuiMCP::IsKeyPressed(ImGuiMCP::ImGuiKey_RightArrow) || ImGuiMCP::IsKeyPressed(ImGuiMCP::ImGuiKey_UpArrow)) { nudge += a_step; }
-				if (nudge != 0.0F)
-				{
-					*a_value = std::clamp(*a_value + nudge, a_min, a_max);
-					changed = true;
-				}
-				ImGuiMCP::SameLine();
-				ImGuiMCP::TextDisabled("%s", strings::TR("LMIM_NudgeArrows", "<-->"));
-			}
+			bool changed = precise::SliderFloat(a_label, a_value, a_min, a_max, a_format);
+			if (precise::HighlightNudge(a_value, a_min, a_max, a_format)) { changed = true; }
+			if (changed) { *a_value = std::clamp(*a_value, a_min, a_max); }
 			return changed;
 		}
 
